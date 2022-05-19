@@ -1,4 +1,11 @@
-package com.distribuidos;
+package com.distribuidos.model;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import javax.naming.Context;
 
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -12,15 +19,7 @@ public class Monitor {
 
     private double max;
     private double min;
-
-
-    public static void main(String[] args) {
-
-
-        Monitor monitorT = new Monitor(args[1],10,20);
-        monitorT.getMeasures();
-
-    }
+    ArrayList<ZMQ.Socket> connections;
 
     public Monitor() {
     }
@@ -34,24 +33,51 @@ public class Monitor {
         this.type = type;
         this.max = max;
         this.min = min;
+        this.connections = new ArrayList<>();
     }
 
-    public void getMeasures() {
+    public void getMeasures() throws FileNotFoundException {
 
         try (ZContext context = new ZContext()) {
 
             System.out.println("Recibiendo Medidas... ");
 
+            this.generateConnections(context);
+
             while (true) {
 
-                ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
-                subscriber.connect("tcp://localhost:5558");
-                subscriber.subscribe(this.getType().getBytes(ZMQ.CHARSET));
-                String string = subscriber.recvStr(0).trim();
-                System.out.println(string);
+                for (ZMQ.Socket socket : this.connections) {
+                    
+                    socket.subscribe(this.getType().getBytes(ZMQ.CHARSET));
+                    String string = socket.recvStr(0).trim();
+                    System.out.println("Monitor: "+string);
+
+                }
+              
             }
         }
 
+    }
+
+    public void generateConnections(ZContext context) throws FileNotFoundException {
+
+        File doc = new File("configuration/ports.txt");
+        Scanner obj = new Scanner(doc);
+
+        while(obj.hasNextLine()){
+
+            String line = obj.nextLine();
+
+            if(line.contains(this.getType())){
+
+                String port = line.split(" ")[0];
+
+                ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
+                subscriber.connect("tcp://localhost:"+ port);
+                this.connections.add(subscriber);
+            }
+        }
+        obj.close();
     }
 
     public double getValue() {

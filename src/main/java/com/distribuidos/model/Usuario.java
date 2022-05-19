@@ -1,4 +1,4 @@
-package com.distribuidos;
+package com.distribuidos.model;
 
 public class Usuario {
     
