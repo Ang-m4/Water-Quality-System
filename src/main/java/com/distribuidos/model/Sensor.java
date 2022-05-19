@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -93,7 +96,7 @@ public class Sensor {
                 String update = String.format("%s %f", this.getType(), this.getValue());
                 publisher.send(update, 0);
 
-                System.out.println("Sensor "+ update);
+                System.out.println("Sensor "+ update + " at: " + LocalTime.now());
 
             }
 
