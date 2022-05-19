@@ -1,5 +1,0 @@
-5001 ph
-5002 temperature
-5003 oxygen
-5003 oxygen
-5003 oxygen

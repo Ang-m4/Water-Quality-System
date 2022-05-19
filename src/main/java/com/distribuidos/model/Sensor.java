@@ -84,7 +84,6 @@ public class Sensor {
             ZMQ.Socket publisher = context.createSocket(SocketType.PUB);
 
             publisher.bind("tcp://*:" + this.getPort());
-            // publisher.bind("ipc://" + this.getType());
             this.savePort();
 
             while (!Thread.currentThread().isInterrupted()) {

@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import javax.naming.Context;
+import javax.sound.midi.Receiver;
 
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -19,7 +19,8 @@ public class Monitor {
 
     private double max;
     private double min;
-    ArrayList<ZMQ.Socket> connections;
+
+    ArrayList<MonitorReceiver> connections;
 
     public Monitor() {
     }
@@ -30,13 +31,15 @@ public class Monitor {
     }
 
     public Monitor(String type, double max, double min) {
+
         this.type = type;
         this.max = max;
         this.min = min;
         this.connections = new ArrayList<>();
+
     }
 
-    public void getMeasures() throws FileNotFoundException {
+    public void getMeasures(){
 
         try (ZContext context = new ZContext()) {
 
@@ -44,40 +47,41 @@ public class Monitor {
 
             this.generateConnections(context);
 
-            while (true) {
+            for (MonitorReceiver receiver : this.connections) {
 
-                for (ZMQ.Socket socket : this.connections) {
-                    
-                    socket.subscribe(this.getType().getBytes(ZMQ.CHARSET));
-                    String string = socket.recvStr(0).trim();
-                    System.out.println("Monitor: "+string);
+                receiver.start();
 
-                }
-              
             }
         }
 
     }
 
-    public void generateConnections(ZContext context) throws FileNotFoundException {
+    public void generateConnections(ZContext context) {
 
         File doc = new File("configuration/ports.txt");
-        Scanner obj = new Scanner(doc);
+        Scanner obj;
+        try {
+            obj = new Scanner(doc);
+            while (obj.hasNextLine()) {
 
-        while(obj.hasNextLine()){
-
-            String line = obj.nextLine();
-
-            if(line.contains(this.getType())){
-
-                String port = line.split(" ")[0];
-
-                ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
-                subscriber.connect("tcp://localhost:"+ port);
-                this.connections.add(subscriber);
+                String line = obj.nextLine();
+    
+                if (line.contains(this.getType())) {
+    
+                    String port = line.split(" ")[0];
+                    ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
+                    subscriber.connect("tcp://localhost:" + port);
+                    MonitorReceiver mr = new MonitorReceiver(subscriber,this.getType());
+    
+                    this.connections.add(mr);
+                }
             }
+
+            obj.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        obj.close();
+
     }
 
     public double getValue() {
