@@ -87,6 +87,8 @@ public class Sensor {
             publisher.bind("tcp://*:" + this.getPort());
             this.savePort();
 
+            System.out.println("Sending Measures...");
+
             while (!Thread.currentThread().isInterrupted()) {
 
                 Thread.sleep(this.getFrecuency());
@@ -96,7 +98,6 @@ public class Sensor {
                 String update = String.format("%s %f %s", this.getType(), this.getValue(),LocalTime.now());
                 publisher.send(update, 0);
 
-                System.out.println("Sensor "+ update + " at: " + LocalTime.now());
 
             }
 

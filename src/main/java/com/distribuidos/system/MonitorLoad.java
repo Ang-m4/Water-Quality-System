@@ -11,7 +11,7 @@ public class MonitorLoad {
     
     public static void main(String[] args) {
 
-        Monitor monitorT = new Monitor(args[0],10,20);
+        Monitor monitorT = new Monitor(args[0]);
         handleShutdown(args[0]);
         monitorT.getMeasures();
     }

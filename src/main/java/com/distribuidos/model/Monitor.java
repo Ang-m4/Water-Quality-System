@@ -31,12 +31,25 @@ public class Monitor {
         this.database_path = database_path;
     }
 
-    public Monitor(String type, double max, double min) {
+    public Monitor(String type) {
 
         this.type = type;
-        this.max = max;
-        this.min = min;
         this.connections = new ArrayList<>();
+
+        if(type.equals("temperature")){
+            this.min = 68;
+            this.max = 89;
+        }
+
+        if(type.equals("ph")){
+            this.min = 6;
+            this.max = 8;
+        }
+
+        if(type.equals("oxygen")){
+            this.min = 2;
+            this.max = 11;
+        }
 
     }
 
@@ -108,7 +121,7 @@ public class Monitor {
 
         ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
         subscriber.connect("tcp://localhost:" + port);
-        MonitorReceiver mr = new MonitorReceiver(subscriber, this.getType());
+        MonitorReceiver mr = new MonitorReceiver(subscriber, this.getType(),this.getMin(),this.getMax());
         this.connections.add(port);
         mr.start();
     }

@@ -32,7 +32,7 @@ public class HealthCheck {
 
                     if (line.contains("Down")) {
                         this.setOnUse(true);
-                        Monitor extra = new Monitor(type, 10, 20);
+                        Monitor extra = new Monitor(type);
                         extra.getMeasures();
                     }
 
