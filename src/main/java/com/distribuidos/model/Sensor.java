@@ -98,7 +98,6 @@ public class Sensor {
                 String update = String.format("%s %f %s", this.getType(), this.getValue(),LocalTime.now());
                 publisher.send(update, 0);
 
-
             }
 
         } catch (Exception e) {

@@ -21,7 +21,9 @@ public class Monitor {
     private double max;
     private double min;
 
-    ArrayList<String> connections;
+    private ArrayList<String> connections;
+
+    private String senderPort;
 
     public Monitor() {
     }
@@ -39,16 +41,19 @@ public class Monitor {
         if(type.equals("temperature")){
             this.min = 68;
             this.max = 89;
+            this.senderPort = "3001";
         }
 
         if(type.equals("ph")){
             this.min = 6;
             this.max = 8;
+            this.senderPort = "3002";
         }
 
         if(type.equals("oxygen")){
             this.min = 2;
             this.max = 11;
+            this.senderPort = "3003";
         }
 
     }
@@ -83,6 +88,10 @@ public class Monitor {
 
         Scanner obj;
 
+        ZMQ.Socket sender = context.createSocket(SocketType.PUB);
+        sender.bind("tcp://*:"+this.getSenderPort());
+
+
         try {
 
             while (true) {
@@ -100,7 +109,7 @@ public class Monitor {
 
                         if (!connections.contains(port)) {
                             System.out.println("New Sensor Connected !");
-                            prepareSocket(context, port);
+                            prepareSocket(context, port ,sender);
                         }
                     }
 
@@ -117,11 +126,11 @@ public class Monitor {
 
     }
 
-    public void prepareSocket(ZContext context, String port) {
+    public void prepareSocket(ZContext context, String port , ZMQ.Socket sender) {
 
         ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
         subscriber.connect("tcp://localhost:" + port);
-        MonitorReceiver mr = new MonitorReceiver(subscriber, this.getType(),this.getMin(),this.getMax());
+        MonitorReceiver mr = new MonitorReceiver(subscriber, this.getType(),this.getMin(),this.getMax(),sender);
         this.connections.add(port);
         mr.start();
     }
@@ -165,5 +174,23 @@ public class Monitor {
     public void setMin(double min) {
         this.min = min;
     }
+
+    public ArrayList<String> getConnections() {
+        return connections;
+    }
+
+    public void setConnections(ArrayList<String> connections) {
+        this.connections = connections;
+    }
+
+    public String getSenderPort() {
+        return senderPort;
+    }
+
+    public void setSenderPort(String senderPort) {
+        this.senderPort = senderPort;
+    }
+
+    
 
 }
