@@ -6,21 +6,18 @@ import java.time.LocalTime;
 
 import com.distribuidos.model.Monitor;
 
-
 public class MonitorLoad {
 
     
     public static void main(String[] args) {
 
-        
-
         Monitor monitorT = new Monitor(args[0],10,20);
-        handleCtrlC(args[0]);
+        handleShutdown(args[0]);
         monitorT.getMeasures();
     }
 
 
-    public static void handleCtrlC(String type){
+    public static void handleShutdown(String type){
 
         if(type.equals("ph")){
             
