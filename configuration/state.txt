@@ -1,0 +1,6 @@
+ph Up 23:53:14.959159
+oxygen Up 23:53:27.630427
+temperature Up 23:53:34.320550
+oxygen Down 23:53:42.965518
+ph Down 23:53:44.810109
+temperature Down 23:53:47.613093

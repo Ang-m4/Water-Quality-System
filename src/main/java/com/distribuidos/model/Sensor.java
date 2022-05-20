@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 import org.zeromq.SocketType;
@@ -62,19 +59,23 @@ public class Sensor {
         this.frequency = frecuency;
     }
 
-    public void loadConfiguration(String file) throws FileNotFoundException {
+    public void loadConfiguration(String file){
 
         File doc = new File("configuration/" + file);
         Scanner obj;
 
-        obj = new Scanner(doc);
-
-        while (obj.hasNextLine()) {
-            String data = obj.nextLine();
-            configuration.add(Double.parseDouble(data));
+        try {
+            obj = new Scanner(doc);
+            while (obj.hasNextLine()) {
+                String data = obj.nextLine();
+                configuration.add(Double.parseDouble(data));
+            }
+    
+            obj.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
 
-        obj.close();
     }
 
     public void sendMeasures() {
@@ -92,7 +93,7 @@ public class Sensor {
 
                 this.setValue(percentageRandom());
 
-                String update = String.format("%s %f", this.getType(), this.getValue());
+                String update = String.format("%s %f %s", this.getType(), this.getValue(),LocalTime.now());
                 publisher.send(update, 0);
 
                 System.out.println("Sensor "+ update + " at: " + LocalTime.now());
