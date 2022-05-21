@@ -1,21 +1,15 @@
 package com.distribuidos.system;
-
-import java.util.ArrayList;
-
 import com.distribuidos.model.QAReceiver;
-
 
 public class QALoad {
 
-    
-
     public static void main(String[] args) {
 
-        System.out.println("Waiting for issues...");
-        
         QAReceiver QAReceiverT = new QAReceiver("3001");
         QAReceiver QAReceiverP = new QAReceiver("3002");
         QAReceiver QAReceiverO = new QAReceiver("3003");
+
+        System.out.println("Waiting for issues...");
 
         QAReceiverO.start();
         QAReceiverP.start();

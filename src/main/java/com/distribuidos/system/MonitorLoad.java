@@ -30,7 +30,6 @@ public class MonitorLoad {
                         file.write("ph" + " " + "Down" +" "+ LocalTime.now() +'\n');
                         file.close();
                     } catch (InterruptedException | IOException e) {
-                        
                         e.printStackTrace();
                     }
                     
