@@ -59,9 +59,9 @@ public class Sensor {
         this.frequency = frecuency;
     }
 
-    public void loadConfiguration(String file){
+    public void loadConfiguration(){
 
-        File doc = new File("configuration/" + file);
+        File doc = new File("configuration/" + this.configuration_path);
         Scanner obj;
 
         try {
@@ -105,12 +105,62 @@ public class Sensor {
         }
     }
 
+    public ArrayList<Double> generateMeasures(long number){
+
+        long cont = 0;
+        ArrayList<Double> measures = new ArrayList<>();
+        try (ZContext context = new ZContext()) {
+
+            ZMQ.Socket publisher = context.createSocket(SocketType.PUB);
+
+            publisher.bind("tcp://*:" + this.getPort());
+            this.savePort();
+
+            System.out.println("Sending Measures...");
+
+            while (cont < number) {
+
+                Thread.sleep(this.getFrecuency());
+                this.setValue(percentageRandom());
+                String update = String.format("%s %f %s", this.getType(), this.getValue(),LocalTime.now());
+                measures.add(this.getValue());
+                publisher.send(update, 0);
+                cont++;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return measures;
+    }
+
     public void savePort() throws IOException {
+
+        
 
         FileWriter file = new FileWriter("configuration/ports.txt", true);
         file.write(this.getPort() + " " + this.getType() + '\n');
         file.close();
 
+    }
+
+    
+
+    public int getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(int minValue) {
+        this.minValue = minValue;
+    }
+
+    public int getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(int maxValue) {
+        this.maxValue = maxValue;
     }
 
     public int getFrequency() {
@@ -169,7 +219,7 @@ public class Sensor {
         this.configuration = configuration;
     }
 
-    public int percentageRandom() {
+    public Double percentageRandom() {
 
         double rate0 = this.configuration.get(0);
         double rate1 = this.configuration.get(1);
@@ -179,15 +229,15 @@ public class Sensor {
         randomNumber = Math.random();
 
         if (randomNumber >= 0 && randomNumber <= rate0) {
-            return (int) (Math.random() * (this.maxValue - this.minValue)) + this.minValue;
+            return  (Math.random() * (this.maxValue - this.minValue)) + this.minValue;
 
         } else if (randomNumber >= rate0 / 100 && randomNumber <= rate0 + rate1) {
-            return (int) (Math.random() * (this.minValue - 1));
+            return  (Math.random() * (this.minValue - 1));
 
         } else if (randomNumber >= rate0 + rate1 && randomNumber <= rate0 + rate1 + rate2) {
-            return (int) ((Math.random() * (this.maxValue - this.minValue)) + this.minValue) * -1;
+            return ((Math.random() * (this.maxValue - this.minValue)) + this.minValue) * -1;
         }
 
-        return -1;
+        return -1d;
     }
 }

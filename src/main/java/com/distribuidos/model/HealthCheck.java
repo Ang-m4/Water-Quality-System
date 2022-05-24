@@ -31,6 +31,7 @@ public class HealthCheck {
                     String type = line.split(" ")[0];
 
                     if (line.contains("Down")) {
+                        
                         this.setOnUse(true);
                         Monitor extra = new Monitor(type);
                         extra.getMeasures();

@@ -38,19 +38,19 @@ public class Monitor {
         this.type = type;
         this.connections = new ArrayList<>();
 
-        if(type.equals("temperature")){
+        if (type.equals("temperature")) {
             this.min = 68;
             this.max = 89;
             this.senderPort = "3001";
         }
 
-        if(type.equals("ph")){
+        if (type.equals("ph")) {
             this.min = 6;
             this.max = 8;
             this.senderPort = "3002";
         }
 
-        if(type.equals("oxygen")){
+        if (type.equals("oxygen")) {
             this.min = 2;
             this.max = 11;
             this.senderPort = "3003";
@@ -64,23 +64,23 @@ public class Monitor {
         System.out.println("Recibiendo Medidas... ");
         updateState("Up");
         this.generateConnections(context);
+       
     }
 
-    public void updateState(String state){
+    public void updateState(String state) {
 
         FileWriter file;
 
         try {
 
             file = new FileWriter("configuration/state.txt", true);
-            file.write(this.getType() + " " + state +" "+ LocalTime.now() +'\n');
+            file.write(this.getType() + " " + state + " " + LocalTime.now() + '\n');
             file.close();
 
         } catch (IOException e) {
 
             e.printStackTrace();
-        }
-        ;
+        };
 
     }
 
@@ -89,9 +89,17 @@ public class Monitor {
         Scanner obj;
 
         ZMQ.Socket sender = context.createSocket(SocketType.PUB);
-        sender.bind("tcp://*:"+this.getSenderPort());
+        
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e1) {
 
+            e1.printStackTrace();
+        }
+        
+        sender.bind("tcp://*:" + this.getSenderPort());
+      
         try {
 
             while (true) {
@@ -109,7 +117,8 @@ public class Monitor {
 
                         if (!connections.contains(port)) {
                             System.out.println("New Sensor Connected !");
-                            prepareSocket(context, port ,sender);
+                            prepareSocket(context, port, sender);
+                            
                         }
                     }
 
@@ -123,14 +132,13 @@ public class Monitor {
             e.printStackTrace();
         }
 
-
     }
 
-    public void prepareSocket(ZContext context, String port , ZMQ.Socket sender) {
+    public void prepareSocket(ZContext context, String port, ZMQ.Socket sender) {
 
         ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
         subscriber.connect("tcp://localhost:" + port);
-        MonitorReceiver mr = new MonitorReceiver(subscriber, this.getType(),this.getMin(),this.getMax(),sender);
+        MonitorReceiver mr = new MonitorReceiver(subscriber, this.getType(), this.getMin(), this.getMax(), sender);
         this.connections.add(port);
         mr.start();
     }
@@ -190,7 +198,5 @@ public class Monitor {
     public void setSenderPort(String senderPort) {
         this.senderPort = senderPort;
     }
-
-    
 
 }

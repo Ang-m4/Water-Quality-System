@@ -37,12 +37,17 @@ public class QAReceiver extends Thread{
             LocalTime timeReceived = LocalTime.now();
 
             FileWriter benchmark;
+            FileWriter test;
 
             try {
 
                 benchmark = new FileWriter("Benchmark/alert-promp-time.txt", true);
                 benchmark.write(NANOS.between(timeSended, timeReceived)+"\n");
                 benchmark.close();
+
+                test = new FileWriter("Test/QAtest.txt",true);
+                test.write(string.split(" ")[1]+ " "+ string.split(" ")[2] + "\n");
+                test.close();
                 
             } catch (IOException e) {
                 e.printStackTrace();
